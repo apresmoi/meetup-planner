@@ -93,6 +93,53 @@ The skill maintains:
 
 All data is stored locally on your machine. Your preferences and tracked events are never sent anywhere except to search for new events via the configured APIs.
 
+## Data Transmission & External API Usage
+
+This skill makes external network requests to two services. Here's exactly what data is transmitted:
+
+### To Brave Search API (brave.com)
+**What is sent:**
+- Search query strings constructed from your preferences (e.g., "AI meetup San Francisco February 2026")
+- Your API key (in HTTP headers for authentication)
+- Your IP address (automatically sent by your network stack)
+
+**What is NOT sent:**
+- Your complete preference profile
+- Event registration status or history
+- Personal notes or modifications
+- Other tracked events
+
+**Purpose:** To discover public events matching your interests across the web.
+
+### To Firecrawl API (firecrawl.dev)
+**What is sent:**
+- URLs of event pages to scrape (discovered from Brave Search results)
+- Your API key (in HTTP headers for authentication)
+- Your IP address (automatically sent by your network stack)
+
+**What is NOT sent:**
+- Your preferences or search queries
+- Event tracking status
+- Any personal information
+
+**Purpose:** To extract structured event details (title, date, location, description) from event pages.
+
+### Data Minimization Practices
+- Only essential data is transmitted to accomplish the task
+- API keys are transmitted securely over HTTPS only
+- No telemetry, analytics, or usage tracking is performed
+- No data is sent to any other third-party services
+
+### Reviewing Network Activity
+To monitor what this skill sends:
+```bash
+# Monitor network connections (macOS)
+sudo tcpdump -i any host brave.com or host firecrawl.dev
+
+# Monitor network connections (Linux)
+sudo tcpdump -i any host brave.com or host firecrawl.dev
+```
+
 ---
 
 ## Agent Instructions
@@ -105,23 +152,61 @@ When this skill is invoked:
    ```bash
    # Check if firecrawl skill exists
    ls ~/.claude/skills/firecrawl*
-   # If not found, install it
-   npx skills add firecrawl/cli
+   # If not found, install it with pinned version
+   npx skills@1.x add firecrawl/cli@1
 
    # Check if brave-search skill exists
    ls ~/.claude/skills/brave-search*
-   # If not found, install it
-   npx clawhub@latest install brave-search
+   # If not found, install it with pinned version
+   npx clawhub@1.x install brave-search@1
    ```
 
-2. **Verify API credentials:**
-   - Check if `BRAVE_API_KEY` environment variable is set
-   - If not, tell your human: "I need you to get a Brave Search API key. Please visit https://brave.com/search/api/ to register and get your API key. Once you have it, let me know and I'll help you configure it."
-   - Wait for human response, then save the key to environment configuration
+   **Security Note**: Version pinning prevents automatic installation of potentially compromised newer versions. Before upgrading, always review the changelog and verify package integrity.
 
-   - Check if `FIRECRAWL_API_KEY` environment variable is set
-   - If not, tell your human: "I also need a Firecrawl API key. Please visit https://firecrawl.dev/app/api-keys to register and get your API key. Once you have it, let me know and I'll configure it."
-   - Wait for human response, then save the key to environment configuration
+2. **Verify API credentials:**
+   - Check if `BRAVE_API_KEY` environment variable is set or can be retrieved from secure storage
+   - If not, tell your human: "I need you to get a Brave Search API key. Please visit https://brave.com/search/api/ to register and get your API key. Once you have it, let me know and I'll help you configure it securely."
+   - Wait for human response with the key
+   - **Store the key securely using one of these methods (in order of preference):**
+     a. **macOS Keychain** (most secure):
+        ```bash
+        security add-generic-password -a "$USER" -s "claude-meetup-planner-brave" -w "BRAVE_API_KEY_VALUE"
+        ```
+     b. **Linux Secret Service**:
+        ```bash
+        secret-tool store --label='Brave API Key for Meetup Planner' application claude-meetup-planner service brave-api
+        ```
+     c. **Environment variable** (least secure, only for trusted environments):
+        ```bash
+        # Add to shell profile
+        export BRAVE_API_KEY="key-value"
+        ```
+   - Inform the human which method was used and where the key is stored
+
+   - Check if `FIRECRAWL_API_KEY` environment variable is set or can be retrieved from secure storage
+   - If not, tell your human: "I also need a Firecrawl API key. Please visit https://firecrawl.dev/app/api-keys to register and get your API key. Once you have it, let me know and I'll configure it securely."
+   - Wait for human response with the key
+   - **Store the key securely using the same method as above:**
+     a. **macOS Keychain**:
+        ```bash
+        security add-generic-password -a "$USER" -s "claude-meetup-planner-firecrawl" -w "FIRECRAWL_API_KEY_VALUE"
+        ```
+     b. **Linux Secret Service**:
+        ```bash
+        secret-tool store --label='Firecrawl API Key for Meetup Planner' application claude-meetup-planner service firecrawl-api
+        ```
+     c. **Environment variable**:
+        ```bash
+        export FIRECRAWL_API_KEY="key-value"
+        ```
+   - **IMPORTANT**: Never log or display the full API keys. Always show them redacted (e.g., "sk-****...abc123")
+   - Save a reference to the storage method in `~/.claude/meetup-finder/config.json`:
+     ```json
+     {
+       "credential_storage": "keychain|secret-service|env",
+       "last_credential_check": "ISO-timestamp"
+     }
+     ```
 
 3. **Collect preferences through a conversational interview:**
    - Ask each question one at a time, in a friendly conversational way

@@ -3,14 +3,29 @@ node_modules/
 package-lock.json
 yarn.lock
 
-# Environment variables
+# Environment variables and credentials
 .env
 .env.local
 .env.production
+.env.development
+.env.test
+*.key
+*.pem
+credentials.json
+secrets.json
+api-keys.json
 
 # User data (should stay local)
-~/.claude/meetup-finder/
-*.json
+user-preferences.json
+events.json
+reminders.json
+config.json
+backups/
+
+# Sensitive or personal data patterns
+*-secret*
+*-credentials*
+*-apikey*
 
 # Logs
 *.log

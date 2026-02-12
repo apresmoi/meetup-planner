@@ -19,11 +19,19 @@ Never miss an event that matches your interests! This OpenClaw skill automatical
    - [Brave Search API Key](https://brave.com/search/api/) - For searching events
    - [Firecrawl API Key](https://firecrawl.dev/app/api-keys) - For scraping event details
 
+2. **Review Security Policy** (recommended):
+   - Read [SECURITY.md](SECURITY.md) for credential storage best practices
+   - Understand what data is transmitted externally
+   - Choose secure credential storage method (Keychain recommended)
+
 ### Install via ClawHub
 
 ```bash
+# The installer will prompt you to review security settings
 npx clawhub@latest install meetup-planner
 ```
+
+**⚠️ Security Note**: Before installation, the installer will show security requirements and ask for confirmation. Review the permissions carefully.
 
 ### Manual Installation
 
@@ -105,10 +113,84 @@ All data is stored locally in `~/.claude/meetup-finder/`:
 
 ## 🔐 Privacy & Security
 
-- **No data leaves your machine** except API calls to search for events
-- **API keys are stored as environment variables** (never hardcoded)
-- **All event data is local** - no cloud storage or third-party services
-- **Open source** - review the code yourself!
+This skill takes security seriously. Here's what you need to know:
+
+### Data Privacy
+- ✅ **Local-first**: All event data and preferences stored on your machine
+- ✅ **No cloud sync**: No third-party cloud storage or analytics services
+- ✅ **Minimal transmission**: Only search queries and URLs sent to external APIs
+- ✅ **Open source**: Full transparency - review the code before using
+
+### What Data is Sent Externally
+
+**To Brave Search API:**
+- Search queries based on your preferences (e.g., "AI meetup San Francisco")
+- Your API key (for authentication, over HTTPS)
+- Your IP address (standard network request)
+
+**To Firecrawl API:**
+- URLs of event pages to scrape (from search results)
+- Your API key (for authentication, over HTTPS)
+- Your IP address (standard network request)
+
+**What is NEVER sent:**
+- Your complete preference profile
+- Event registration status or history
+- Personal notes or modifications
+
+### Secure Credential Storage
+
+**Recommended methods (in order of security):**
+
+1. **macOS Keychain** (most secure):
+   ```bash
+   security add-generic-password -a "$USER" -s "claude-meetup-planner-brave" -w "your-key"
+   ```
+
+2. **Linux Secret Service**:
+   ```bash
+   secret-tool store --label='Brave API Key' application claude-meetup-planner service brave-api
+   ```
+
+3. **Environment Variables** (acceptable for trusted environments):
+   ```bash
+   export BRAVE_API_KEY="your-key"
+   export FIRECRAWL_API_KEY="your-key"
+   ```
+
+⚠️ **Never:**
+- Store keys in plaintext files
+- Commit keys to version control
+- Reuse production/high-privilege keys
+- Share keys in chat logs or screenshots
+
+### Security Best Practices
+
+- 🔑 **Use least-privilege keys**: Create API keys specifically for this skill
+- 🔄 **Rotate credentials**: Change API keys every 90 days
+- 📊 **Monitor usage**: Check API dashboards for unexpected activity
+- 🔍 **Review before installing**: Read the code or trust the source
+- 🧪 **Test in isolation**: Try in a non-production environment first
+
+### Version Pinning & Supply Chain Security
+
+- All dependencies are version-pinned to prevent unexpected updates
+- Skill dependencies: `firecrawl/cli@^1.0.0`, `brave-search@^1.0.0`
+- No arbitrary remote code execution during runtime
+- Install hooks require explicit user confirmation
+
+### Additional Security Resources
+
+For detailed security information, see:
+- **[SECURITY.md](SECURITY.md)** - Comprehensive security policy
+- **[.env.example](.env.example)** - Credential template with instructions
+- **Threat model** - What we protect against and what we don't
+
+### Reporting Security Issues
+
+Found a vulnerability? Please **do not** open a public issue.
+- Email: [Create security contact]
+- See [SECURITY.md](SECURITY.md) for our responsible disclosure policy
 
 ## 🛠️ Technical Details
 
