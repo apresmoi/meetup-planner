@@ -7,43 +7,45 @@ description: An intelligent event finder that searches for meetups and events ba
 
 An intelligent assistant that helps you discover, track, and never miss events that match your interests.
 
+## One-time Setup
+
+**IMPORTANT**: If this is your first time using this skill, follow `BOOTSTRAP.md` for setup.
+
+The bootstrap process:
+1. Installs required skills (Firecrawl, Brave Search)
+2. Configures API credentials securely
+3. Collects your event preferences
+4. Sets up automated daily searches (optional)
+5. Creates workspace structure
+
 ## What This Skill Does
 
-1. **Setup Phase**: Installs required skills (Firecrawl, Brave Search) and helps you get API credentials
-2. **Preference Collection**: Learns about your event preferences and interests
-3. **Daily Search**: Automatically searches for events matching your profile every morning
-4. **Event Tracking**: Saves and presents new events for your review
-5. **Smart Reminders**: Sets up notifications 24 hours and 2 hours before confirmed events
+After setup:
+1. **Daily Search**: Automatically searches for events matching your profile every morning (if enabled)
+2. **Event Discovery**: Uses Brave Search and Firecrawl to find events across the web
+3. **Event Tracking**: Saves and presents new events for your review
+4. **Smart Reminders**: Sets up notifications 24 hours and 2 hours before confirmed events
+5. **Preference Management**: Updates your interests and search criteria anytime
 
 ## First Time Setup
 
-When you first run this skill, I will:
+**When you first run this skill**, I will guide you through setup by following `BOOTSTRAP.md`.
 
-1. **Install Required Skills**:
-   - Check if `firecrawl/cli` skill is installed, if not run: `npx skills add firecrawl/cli`
-   - Check if `brave-search` skill is installed, if not run: `npx clawhub@latest install brave-search`
+The setup process is **interactive and secure**:
 
-2. **Setup API Keys**:
-   - **Brave Search API**: Check if `BRAVE_API_KEY` is configured
-     - If not found, send your human to: https://brave.com/search/api/ to register and get an API key
-     - Wait for human to provide the key, then configure it
-   - **Firecrawl API**: Check if `FIRECRAWL_API_KEY` is configured
-     - If not found, send your human to: https://firecrawl.dev/app/api-keys to register and get an API key
-     - Wait for human to provide the key, then configure it
+1. ✅ Install required dependencies (Firecrawl, Brave Search) with pinned versions
+2. 🔐 Configure API credentials using secure storage (Keychain/Secret Service recommended)
+3. 🎯 Learn your event preferences through a friendly conversation
+4. ⏰ Set up automated daily searches (optional)
+5. 📁 Create workspace structure with proper permissions
 
-3. **Learn Your Human's Preferences**:
-   - What types of events are you interested in? (tech meetups, networking, conferences, workshops, hackathons, etc.)
-   - What topics excite you? (AI/ML, web development, blockchain, entrepreneurship, design, data science, etc.)
-   - What's your location or preferred event locations? (city, region, or "remote" for virtual)
-   - Do you prefer in-person, virtual, or hybrid events?
-   - What days/times work best for you? (weekday evenings, weekends, etc.)
-   - What time commitment are you looking for? (1-2 hours, half-day, full-day, multi-day)
-   - Any specific organizations or communities you follow?
-   - Any deal-breakers or must-haves? (free events, small groups, beginner-friendly, etc.)
+**Setup takes 2-5 minutes** depending on whether you have API keys ready.
 
-4. **Setup Daily Search**:
-   - Configure a morning routine to search for new events (default: 8 AM daily)
-   - Set your preferred notification time
+**Before starting**, have these ready (optional but recommended):
+- Brave Search API key from https://brave.com/search/api/
+- Firecrawl API key from https://firecrawl.dev/app/api-keys
+
+I'll walk you through getting them if you don't have them yet.
 
 ## How to Use
 
@@ -146,7 +148,30 @@ sudo tcpdump -i any host brave.com or host firecrawl.dev
 
 When this skill is invoked:
 
-### Phase 1: Setup (First Time Only)
+### Phase 0: Check Bootstrap Status (ALWAYS RUN THIS FIRST)
+
+**Before doing anything else**, check if bootstrap is complete:
+
+```bash
+# Check if bootstrap config exists
+cat ~/.openclaw/workspace/memory/meetup-planner.json 2>/dev/null
+```
+
+**If file doesn't exist OR `bootstrapComplete: false`:**
+- Tell human: "👋 Welcome to Meetup Planner! I need to set up a few things first. This will only take a couple of minutes."
+- **Follow BOOTSTRAP.md step-by-step** (all 7 steps in order)
+- Do NOT proceed to Phase 1/2/3 until bootstrap is complete
+
+**If file exists AND `bootstrapComplete: true`:**
+- Bootstrap is done, proceed to the appropriate phase based on what human asked for:
+  - "search now" → Phase 2 (Daily Search Routine)
+  - "show upcoming" → Phase 3 (Event Confirmation & Tracking)
+  - "update preferences" → Re-run step 3 of BOOTSTRAP.md
+  - No specific request → Ask: "What would you like to do? I can search for events, show upcoming events, or update your preferences."
+
+### Phase 1: Setup (DEPRECATED - Use BOOTSTRAP.md instead)
+
+**This section is kept for reference only. For actual setup, use BOOTSTRAP.md**
 
 1. **Check for required skills:**
    ```bash

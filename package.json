@@ -70,7 +70,7 @@
       "confirm": true
     },
     "postInstall": {
-      "message": "✅ Meetup Planner installed successfully!\n\nNext steps:\n1. Review SECURITY.md for credential storage options\n2. Get API keys:\n   - Brave Search: https://brave.com/search/api/\n   - Firecrawl: https://firecrawl.dev/app/api-keys\n3. Run the skill to complete setup\n\nSecurity tip: Use OS keychain for storing API keys (see SECURITY.md)"
+      "message": "✅ Meetup Planner installed successfully!\n\n🚀 Next Steps:\n1. Run the skill - it will guide you through BOOTSTRAP.md setup\n2. Have API keys ready (or get them during setup):\n   • Brave Search: https://brave.com/search/api/\n   • Firecrawl: https://firecrawl.dev/app/api-keys\n\n🔐 Security:\n• The skill will help you store credentials securely (Keychain recommended)\n• Review SECURITY.md for detailed security practices\n• All setup is done interactively - just follow the prompts!\n\n⏱️  Setup takes 2-5 minutes. Let's go! 🎉"
     }
   },
   "security": {
