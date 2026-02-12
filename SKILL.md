@@ -1,6 +1,22 @@
 ---
 name: meetup-planner
 description: An intelligent event finder that searches for meetups and events based on your interests, tracks them, and reminds you before they happen
+license: MIT
+metadata:
+  version: 1.0.0
+  author: apresmoi
+  homepage: https://github.com/apresmoi/meetup-planner
+  repository: https://github.com/apresmoi/meetup-planner.git
+  bootstrap: BOOTSTRAP.md
+  permissions:
+    network:
+      - eventbrite.com
+      - meetup.com
+      - luma.co
+    filesystem:
+      - ~/.openclaw/workspace/memory/
+      - ~/.openclaw/workspace/meetup-planner/
+    cron: daily-searches
 ---
 
 # Meetup Planner
@@ -9,14 +25,15 @@ An intelligent assistant that helps you discover, track, and never miss events t
 
 ## One-time Setup
 
-**IMPORTANT**: If this is your first time using this skill, follow `BOOTSTRAP.md` for setup.
+**IMPORTANT**: After installing this skill, the agent will automatically run the bootstrap setup process from `BOOTSTRAP.md`.
 
 The bootstrap process:
-1. Installs required skills (Firecrawl, Brave Search)
-2. Configures API credentials securely
-3. Collects your event preferences
-4. Sets up automated daily searches (optional)
-5. Creates workspace structure
+1. Checks for web search and crawling capabilities
+2. Collects your event preferences
+3. Sets up automated daily searches (optional)
+4. Creates workspace structure
+
+If you don't have search/crawling capabilities, I'll suggest installing tools like Firecrawl or Brave Search.
 
 ## What This Skill Does
 
@@ -31,21 +48,14 @@ After setup:
 
 **When you first run this skill**, I will guide you through setup by following `BOOTSTRAP.md`.
 
-The setup process is **interactive and secure**:
+The setup process is **interactive and friendly**:
 
-1. ✅ Install required dependencies (Firecrawl, Brave Search) with pinned versions
-2. 🔐 Configure API credentials using secure storage (Keychain/Secret Service recommended)
-3. 🎯 Learn your event preferences through a friendly conversation
-4. ⏰ Set up automated daily searches (optional)
-5. 📁 Create workspace structure with proper permissions
+1. ✅ Check for web search and crawling capabilities
+2. 🎯 Learn your event preferences through a friendly conversation
+3. ⏰ Set up automated daily searches (optional)
+4. 📁 Create workspace structure with proper permissions
 
-**Setup takes 2-5 minutes** depending on whether you have API keys ready.
-
-**Before starting**, have these ready (optional but recommended):
-- Brave Search API key from https://brave.com/search/api/
-- Firecrawl API key from https://firecrawl.dev/app/api-keys
-
-I'll walk you through getting them if you don't have them yet.
+**Setup takes 2-3 minutes**. If you don't have search/crawling tools installed, I'll suggest options like Firecrawl or Brave Search.
 
 ## How to Use
 
@@ -83,9 +93,9 @@ The skill maintains:
 
 ## Technical Details
 
-**APIs Used:**
-- Brave Search API - For discovering events across the web
-- Firecrawl API - For scraping event details from websites
+**Capabilities Required:**
+- Web search capability (e.g., Brave Search, Google Search, or similar)
+- Web crawling/scraping capability (e.g., Firecrawl or similar)
 
 **Scheduling:**
 - Uses system cron jobs (or equivalent) for daily searches
@@ -97,13 +107,13 @@ All data is stored locally on your machine. Your preferences and tracked events 
 
 ## Data Transmission & External API Usage
 
-This skill makes external network requests to two services. Here's exactly what data is transmitted:
+This skill makes external network requests to search and scrape event information. The exact services depend on what search/crawling tools you have installed.
 
-### To Brave Search API (brave.com)
 **What is sent:**
 - Search query strings constructed from your preferences (e.g., "AI meetup San Francisco February 2026")
-- Your API key (in HTTP headers for authentication)
+- URLs of event pages to scrape
 - Your IP address (automatically sent by your network stack)
+- Any authentication credentials required by the search/crawling tools you use
 
 **What is NOT sent:**
 - Your complete preference profile
@@ -111,40 +121,19 @@ This skill makes external network requests to two services. Here's exactly what 
 - Personal notes or modifications
 - Other tracked events
 
-**Purpose:** To discover public events matching your interests across the web.
-
-### To Firecrawl API (firecrawl.dev)
-**What is sent:**
-- URLs of event pages to scrape (discovered from Brave Search results)
-- Your API key (in HTTP headers for authentication)
-- Your IP address (automatically sent by your network stack)
-
-**What is NOT sent:**
-- Your preferences or search queries
-- Event tracking status
-- Any personal information
-
-**Purpose:** To extract structured event details (title, date, location, description) from event pages.
+**Purpose:** To discover public events matching your interests and extract structured event details.
 
 ### Data Minimization Practices
 - Only essential data is transmitted to accomplish the task
-- API keys are transmitted securely over HTTPS only
+- All credentials are transmitted securely over HTTPS only
 - No telemetry, analytics, or usage tracking is performed
-- No data is sent to any other third-party services
-
-### Reviewing Network Activity
-To monitor what this skill sends:
-```bash
-# Monitor network connections (macOS)
-sudo tcpdump -i any host brave.com or host firecrawl.dev
-
-# Monitor network connections (Linux)
-sudo tcpdump -i any host brave.com or host firecrawl.dev
-```
+- No data is sent to any services beyond your configured search/crawling tools
 
 ---
 
 ## Agent Instructions
+
+**IMPORTANT: After installing this skill, ALWAYS run the bootstrap setup from BOOTSTRAP.md before first use.**
 
 When this skill is invoked:
 
@@ -159,89 +148,19 @@ cat ~/.openclaw/workspace/memory/meetup-planner.json 2>/dev/null
 
 **If file doesn't exist OR `bootstrapComplete: false`:**
 - Tell human: "👋 Welcome to Meetup Planner! I need to set up a few things first. This will only take a couple of minutes."
-- **Follow BOOTSTRAP.md step-by-step** (all 7 steps in order)
+- **Follow BOOTSTRAP.md step-by-step** (all steps in order)
 - Do NOT proceed to Phase 1/2/3 until bootstrap is complete
 
 **If file exists AND `bootstrapComplete: true`:**
 - Bootstrap is done, proceed to the appropriate phase based on what human asked for:
   - "search now" → Phase 2 (Daily Search Routine)
   - "show upcoming" → Phase 3 (Event Confirmation & Tracking)
-  - "update preferences" → Re-run step 3 of BOOTSTRAP.md
+  - "update preferences" → Re-run the preference collection from BOOTSTRAP.md
   - No specific request → Ask: "What would you like to do? I can search for events, show upcoming events, or update your preferences."
 
-### Phase 1: Setup (DEPRECATED - Use BOOTSTRAP.md instead)
+### Phase 1: Setup
 
-**This section is kept for reference only. For actual setup, use BOOTSTRAP.md**
-
-1. **Check for required skills:**
-   ```bash
-   # Check if firecrawl skill exists
-   ls ~/.claude/skills/firecrawl*
-   # If not found, install it with pinned version
-   npx skills@1.x add firecrawl/cli@1
-
-   # Check if brave-search skill exists
-   ls ~/.claude/skills/brave-search*
-   # If not found, install it with pinned version
-   npx clawhub@1.x install brave-search@1
-   ```
-
-   **Security Note**: Version pinning prevents automatic installation of potentially compromised newer versions. Before upgrading, always review the changelog and verify package integrity.
-
-2. **Verify API credentials:**
-   - Check if `BRAVE_API_KEY` environment variable is set or can be retrieved from secure storage
-   - If not, tell your human: "I need you to get a Brave Search API key. Please visit https://brave.com/search/api/ to register and get your API key. Once you have it, let me know and I'll help you configure it securely."
-   - Wait for human response with the key
-   - **Store the key securely using one of these methods (in order of preference):**
-     a. **macOS Keychain** (most secure):
-        ```bash
-        security add-generic-password -a "$USER" -s "claude-meetup-planner-brave" -w "BRAVE_API_KEY_VALUE"
-        ```
-     b. **Linux Secret Service**:
-        ```bash
-        secret-tool store --label='Brave API Key for Meetup Planner' application claude-meetup-planner service brave-api
-        ```
-     c. **Environment variable** (least secure, only for trusted environments):
-        ```bash
-        # Add to shell profile
-        export BRAVE_API_KEY="key-value"
-        ```
-   - Inform the human which method was used and where the key is stored
-
-   - Check if `FIRECRAWL_API_KEY` environment variable is set or can be retrieved from secure storage
-   - If not, tell your human: "I also need a Firecrawl API key. Please visit https://firecrawl.dev/app/api-keys to register and get your API key. Once you have it, let me know and I'll configure it securely."
-   - Wait for human response with the key
-   - **Store the key securely using the same method as above:**
-     a. **macOS Keychain**:
-        ```bash
-        security add-generic-password -a "$USER" -s "claude-meetup-planner-firecrawl" -w "FIRECRAWL_API_KEY_VALUE"
-        ```
-     b. **Linux Secret Service**:
-        ```bash
-        secret-tool store --label='Firecrawl API Key for Meetup Planner' application claude-meetup-planner service firecrawl-api
-        ```
-     c. **Environment variable**:
-        ```bash
-        export FIRECRAWL_API_KEY="key-value"
-        ```
-   - **IMPORTANT**: Never log or display the full API keys. Always show them redacted (e.g., "sk-****...abc123")
-   - Save a reference to the storage method in `~/.claude/meetup-finder/config.json`:
-     ```json
-     {
-       "credential_storage": "keychain|secret-service|env",
-       "last_credential_check": "ISO-timestamp"
-     }
-     ```
-
-3. **Collect preferences through a conversational interview:**
-   - Ask each question one at a time, in a friendly conversational way
-   - Save responses to `~/.claude/meetup-finder/user-preferences.json`
-   - Use the human's answers to build a rich preference profile
-
-4. **Setup automation:**
-   - Create a cron job (or equivalent) for daily searches
-   - Default: Every day at 8:00 AM
-   - Store cron configuration in `~/.claude/meetup-finder/config.json`
+**All setup is handled by BOOTSTRAP.md. See Phase 0 above.**
 
 ### Phase 2: Daily Search Routine
 
